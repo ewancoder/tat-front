@@ -3,17 +3,30 @@ document.addEventListener('keyup', processKeyUp);
 
 window.signin = async function(response) {
     auth.token = response.credential;
-    document.getElementById('authentication').style.display = 'none';
+    document.getElementById('authentication').classList.add('hidden');
+    showTextInputArea();
+};
+
+window.submitText = async function submitText() {
+    if (inputElement.value == '') return;
 
     const text = await getNextText();
+    inputAreaElement.classList.add('hidden');
     typingState.prepareText(text, textElement);
-};
+}
+
+function showTextInputArea() {
+    inputElement.value = '';
+    inputAreaElement.classList.remove('hidden');
+}
 
 // Authentication token is saved here after authenticating.
 const auth = {};
 
 // Element where the text that you're typing is drawn.
 const textElement = document.getElementById('text');
+const inputAreaElement = document.getElementById('input-area');
+const inputElement = document.getElementById('input');
 
 // Current typing state object.
 const typingState = {
@@ -200,6 +213,7 @@ const typingState = {
 
         this.allowInput = false;
         this.finishedTypingAt = Date.now();
+
         this.uploadResults({
             text: this.sourceText,
             startedTypingAt: new Date(this.startedTypingAt).toISOString(),
@@ -209,6 +223,9 @@ const typingState = {
             timezoneOffset: -new Date(this.startedTypingAt).getTimezoneOffset(),
             events: this.events
         });
+
+        this.reset();
+        showTextInputArea();
     },
 
     async uploadResults(results) {
@@ -220,8 +237,6 @@ const typingState = {
             },
             body: JSON.stringify(results)
         });
-
-        this.reset();
     }
 };
 
@@ -255,5 +270,7 @@ function isAllowedControlKey(key) {
 }
 
 function getNextText() {
-    return 'Sample text that you need to type.';
+    //return 'Sample text that you need to type.';
+
+    return inputElement.value;
 }
