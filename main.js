@@ -76,6 +76,7 @@ const typingState = {
     // Prepares the text and draws it in the textElement field, and allows input.
     prepareText(text) {
         this.reset();
+        text = this.normalizeText(text);
         this.sourceText = text;
 
         text.split('').forEach(character => {
@@ -222,6 +223,15 @@ const typingState = {
             },
             body: JSON.stringify(results)
         });
+    },
+
+    normalizeText(text) {
+        return text.replaceAll('\n', ' ')
+            .replaceAll('\r', ' ')
+            .replaceAll('  ', ' ')
+            .replaceAll('  ', ' ')
+            .replaceAll('  ', ' ')
+            .trim();
     }
 };
 
