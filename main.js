@@ -8,7 +8,7 @@ window.signin = async function(response) {
 };
 
 window.submitText = async function submitText() {
-    if (inputElement.value == '') return;
+    if (inputElement.value === '') return;
 
     const text = await getNextText();
     inputAreaElement.classList.add('hidden');
@@ -99,7 +99,7 @@ const typingState = {
     },
 
     startTypingIfNotStarted(key, perf) {
-        if (this.startedTypingAt != undefined || (key.length > 1 && key != 'LShift' && key != 'RShift')) return;
+        if (this.startedTypingAt !== undefined || (key.length > 1 && key !== 'LShift' && key !== 'RShift')) return;
 
         this.startedTypingAt = Date.now();
         this.startedTypingPerf = perf;
@@ -125,7 +125,7 @@ const typingState = {
     canType(key) {
         // Do not log any character presses once the text has been typed in full.
         // Also do not log it if key is null or undefined.
-        return this.allowInput && key != undefined && key != null;
+        return this.allowInput && key !== undefined && key !== null;
     },
 
     logCharacterAction(key, perf, keyAction) {
@@ -136,20 +136,20 @@ const typingState = {
             keyAction: keyAction
         });
 
-        if (keyAction == 'Release' || (key.length > 1 && key != 'Backspace')) return;
+        if (keyAction === 'Release' || (key.length > 1 && key !== 'Backspace')) return;
 
         let currentKey = null;
         let currentSpan = null;
 
-        if (this.index != this.textToType.length) {
+        if (this.index !== this.textToType.length) {
             currentKey = this.textToType[this.index];
             currentSpan = currentKey.span;
         }
 
-        if (key == 'Backspace') {
-            if (this.index == 0) return;
+        if (key === 'Backspace') {
+            if (this.index === 0) return;
 
-            if (currentKey != null) {
+            if (currentKey !== null) {
                 // Move caret away.
                 currentSpan.classList.remove('cursor');
             }
@@ -164,7 +164,7 @@ const typingState = {
             currentSpan.classList.remove('wrong');
             currentSpan.classList.remove('corrected');
             if (currentKey.failed) {
-                if (currentKey.character == ' ') {
+                if (currentKey.character === ' ') {
                     //currentSpan.classList.add('space-was-wrong');
                 } else {
                     currentSpan.classList.add('was-wrong');
@@ -175,12 +175,12 @@ const typingState = {
             return;
         }
 
-        if (currentKey == null) return;
+        if (currentKey === null) return;
 
         // Move caret away.
         currentSpan.classList.remove('cursor');
 
-        if (currentKey.character != key) {
+        if (currentKey.character !== key) {
             currentKey.failed = true;
             currentKey.currentlyFailed = true;
             currentSpan.classList.remove('typed');
@@ -198,7 +198,7 @@ const typingState = {
         }
 
         this.index++;
-        if (this.textToType.length == this.index) {
+        if (this.textToType.length === this.index) {
             this.finishTyping();
             return;
         }
@@ -256,10 +256,10 @@ function processKeyUp(event) {
 }
 
 function getKey(event) {
-    if (event.code == 'ShiftLeft') return 'LShift';
-    if (event.code == 'ShiftRight') return 'RShift';
+    if (event.code === 'ShiftLeft') return 'LShift';
+    if (event.code === 'ShiftRight') return 'RShift';
 
-    if (event.key.length == 1 || isAllowedControlKey(event.key)) {
+    if (event.key.length === 1 || isAllowedControlKey(event.key)) {
         return event.key;
     }
 
@@ -267,7 +267,7 @@ function getKey(event) {
 }
 
 function isAllowedControlKey(key) {
-    return key == 'Backspace';
+    return key === 'Backspace';
 }
 
 function getNextText() {
