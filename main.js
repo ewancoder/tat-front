@@ -50,9 +50,6 @@ const typingState = {
     /* Time when the typing has begun. */
     startedTypingAt: undefined,
 
-    /* Performance.now() result when the typing has begun. */
-    startedTypingPerf: undefined,
-
     /* Time when text has been successfully typed to the end. */
     finishedTypingAt: undefined,
 
@@ -72,7 +69,6 @@ const typingState = {
         this.sourceText = undefined;
         this.textToType = [];
         this.startedTypingAt = undefined;
-        this.startedTypingPerf = undefined;
         this.finishedTypingAt = undefined;
         this.events = [];
     },
@@ -102,7 +98,6 @@ const typingState = {
         if (this.startedTypingAt !== undefined || (key.length > 1 && key !== 'LShift' && key !== 'RShift')) return;
 
         this.startedTypingAt = Date.now();
-        this.startedTypingPerf = perf;
 
         // Place the caret on the first character.
         this.textToType[this.index].span.classList.add('cursor');
@@ -124,8 +119,8 @@ const typingState = {
 
     canType(key) {
         // Do not log any character presses once the text has been typed in full.
-        // Also do not log it if key is null or undefined.
-        return this.allowInput && key !== undefined && key !== null;
+        // Also do not log it if key is null (not supported).
+        return this.allowInput && key !== null;
     },
 
     logCharacterAction(key, perf, keyAction) {
@@ -163,12 +158,8 @@ const typingState = {
             currentSpan.classList.remove('typed');
             currentSpan.classList.remove('wrong');
             currentSpan.classList.remove('corrected');
-            if (currentKey.failed) {
-                if (currentKey.character === ' ') {
-                    //currentSpan.classList.add('space-was-wrong');
-                } else {
-                    currentSpan.classList.add('was-wrong');
-                }
+            if (currentKey.failed && currentKey.character !== ' ') {
+                currentSpan.classList.add('was-wrong');
             }
 
             currentSpan.classList.add('cursor');
@@ -183,12 +174,9 @@ const typingState = {
         if (currentKey.character !== key) {
             currentKey.failed = true;
             currentKey.currentlyFailed = true;
-            currentSpan.classList.remove('typed');
             currentSpan.classList.add('wrong');
         } else {
-            currentSpan.classList.remove('wrong');
             currentSpan.classList.remove('was-wrong');
-            //currentSpan.classList.remove('space-was-wrong');
 
             if (currentKey.failed) {
                 currentSpan.classList.add('corrected');
@@ -203,10 +191,7 @@ const typingState = {
             return;
         }
 
-        currentKey = this.textToType[this.index];
-        currentSpan = currentKey.span;
-
-        currentSpan.classList.add('cursor');
+        this.textToType[this.index].span.classList.add('cursor');
     },
 
     finishTyping() {
@@ -218,7 +203,6 @@ const typingState = {
         this.uploadResults({
             text: this.sourceText,
             startedTypingAt: new Date(this.startedTypingAt).toISOString(),
-            startedTypingPerf: this.startedTypingPerf,
             finishedTypingAt: new Date(this.finishedTypingAt).toISOString(),
             timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
             timezoneOffset: -new Date(this.startedTypingAt).getTimezoneOffset(),
@@ -259,15 +243,11 @@ function getKey(event) {
     if (event.code === 'ShiftLeft') return 'LShift';
     if (event.code === 'ShiftRight') return 'RShift';
 
-    if (event.key.length === 1 || isAllowedControlKey(event.key)) {
+    if (event.key.length === 1 || event.key === 'Backspace') {
         return event.key;
     }
 
     return null;
-}
-
-function isAllowedControlKey(key) {
-    return key === 'Backspace';
 }
 
 function getNextText() {
