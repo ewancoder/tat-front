@@ -40,6 +40,9 @@ const typingState = {
     /* Performance.now() result when the typing has begun. */
     startedTypingPerf: undefined,
 
+    /* Time when text has been successfully typed to the end. */
+    finishedTypingAt: undefined,
+
     /* All events that occurred during typing.
      * This is what is being sent to the server to record for statistics, with the following format:
      - key (text) - either a character or a command key like LeftShift, RightShift, Space, Backspace
@@ -57,6 +60,7 @@ const typingState = {
         this.textToType = [];
         this.startedTypingAt = undefined;
         this.startedTypingPerf = undefined;
+        this.finishedTypingAt = undefined;
         this.events = [];
     },
 
@@ -195,8 +199,14 @@ const typingState = {
         if (this.textToType.some(x => x.currentlyFailed)) return;
 
         this.allowInput = false;
+        this.finishedTypingAt = Date.now();
         this.uploadResults({
             text: this.sourceText,
+            startedTypingAt: new Date(this.startedTypingAt).toISOString(),
+            startedTypingPerf: this.startedTypingPerf,
+            finishedTypingAt: new Date(this.finishedTypingAt).toISOString(),
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            timezoneOffset: -new Date(this.startedTypingAt).getTimezoneOffset(),
             events: this.events
         });
     },
