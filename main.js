@@ -228,9 +228,7 @@ const typingState = {
     normalizeText(text) {
         return text.replaceAll('\n', ' ')
             .replaceAll('\r', ' ')
-            .replaceAll('  ', ' ')
-            .replaceAll('  ', ' ')
-            .replaceAll('  ', ' ')
+            .replace('/\s+/g', ' ')
             .trim();
     }
 };
