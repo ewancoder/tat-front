@@ -4,3 +4,42 @@ body {
     font-family: monospace;
     font-size: 1rem;
 }
+
+#text {
+    max-height: 50%;
+    font-size: 2.2rem;
+    width: 1000px;
+    margin: 0 auto;
+}
+
+.hidden {
+    display: none;
+}
+
+.cursor {
+    text-decoration: underline;
+    text-decoration-color: #99f;
+}
+
+.corrected {
+    color: #999;
+    background-color: #ede;
+}
+
+.typed {
+    color: #999;
+    background-color: #ddd;
+}
+
+.wrong {
+    color: #a55;
+    background-color: #fdd;
+}
+
+.was-wrong {
+    color: #a5a;
+}
+
+.space-was-wrong {
+    text-decoration: underline #d9d;
+}
