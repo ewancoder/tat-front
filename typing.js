@@ -181,7 +181,7 @@ export function initializeTypingState(textElement, finishTypingCallback) {
                 events: this.events
             });
 
-            this.reset();
+            //this.reset();
         },
 
         normalizeText(text) {
