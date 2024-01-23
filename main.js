@@ -50,6 +50,7 @@ const typingState = {
 
     // Resets the state to default values.
     reset() {
+        textElement.innerHTML = '';
         this.allowInput = false;
         this.index = 0;
         this.sourceText = undefined;
@@ -60,7 +61,7 @@ const typingState = {
     },
 
     // Prepares the text and draws it in the textElement field, and allows input.
-    prepareText(text, textElement) {
+    prepareText(text) {
         this.reset();
         this.sourceText = text;
 
@@ -200,8 +201,17 @@ const typingState = {
         });
     },
 
-    uploadResults(results) {
-        console.log(results);
+    async uploadResults(results) {
+        await fetch('http://localhost:5000/api/typing', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${auth.token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(results)
+        });
+
+        this.reset();
     }
 };
 
