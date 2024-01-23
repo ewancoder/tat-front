@@ -109,22 +109,23 @@ const typingState = {
     },
 
     pressKey(key, perf) {
-        if (!this.canType()) return;
+        if (!this.canType(key)) return;
         this.startTypingIfNotStarted(key, perf);
 
         this.logCharacterAction(key, perf, 'Press');
     },
 
     releaseKey(key, perf) {
-        if (!this.canType()) return;
+        if (!this.canType(key)) return;
         this.startTypingIfNotStarted(key, perf);
 
         this.logCharacterAction(key, perf, 'Release');
     },
 
-    canType() {
+    canType(key) {
         // Do not log any character presses once the text has been typed in full.
-        return this.allowInput;
+        // Also do not log it if key is null or undefined.
+        return this.allowInput && key != undefined && key != null;
     },
 
     logCharacterAction(key, perf, keyAction) {
