@@ -1,4 +1,5 @@
-import { initializeTypingState } from "./typing.js";
+import { initializeTypingState } from './typing.js';
+import { config } from './config.js';
 
 window.signin = async function(response) {
     auth.token = response.credential;
@@ -22,7 +23,7 @@ window.submitText = async function submitText() {
 }
 
 async function uploadResults(results) {
-    await fetch('http://localhost:5000/api/typing', {
+    await fetch(config.typingApiUrl, {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${auth.token}`,
