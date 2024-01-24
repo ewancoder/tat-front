@@ -1,0 +1,3 @@
+FROM nginx
+COPY ./src/ /usr/share/nginx/html
+COPY ./config/config.production.js /usr/share/nginx/html/config.js
