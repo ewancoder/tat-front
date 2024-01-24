@@ -1,0 +1,7 @@
+{
+    email typingrealm@gmail.com
+}
+
+typingrealm.com {
+    reverse_proxy typingrealm-web-ui:80
+}

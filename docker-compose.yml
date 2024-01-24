@@ -1,0 +1,32 @@
+version: "3.8"
+
+networks:
+  typingrealm-web-ui-net:
+
+services:
+  typingrealm-web-ui:
+    image: ${DOCKER_REGISTRY-}typingrealm-web-ui
+    container_name: typingrealm-web-ui
+    networks:
+      - typingrealm-web-ui-net
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    mem_limit: 1g
+    mem_reservation: 750m
+
+  typingrealm-caddy:
+    image: caddy
+    container_name: typingrealm-caddy
+    networks:
+      - typingrealm-web-ui-net
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - ./infrastructure-data/prod/caddy_data:/data
+    restart: unless-stopped
+    mem_limit: 1g
+    mem_reservation: 750m
