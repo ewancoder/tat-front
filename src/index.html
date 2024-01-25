@@ -10,8 +10,7 @@
       window.signin = function(response) {
         window.auth.token = response.credential;
         document.getElementById('authentication').classList.add('hidden');
-        document.getElementById('input').value = '';
-        document.getElementById('input-area').classList.remove('hidden');
+        window.onSignIn();
       };
     </script>
     <script type="module" src="main.js" defer></script>
@@ -39,6 +38,7 @@
       <button class="submit-button" onclick="submitText()">Start</button>
     </div>
     <div id="text"></div>
+    <table id="sessions" class="hidden"></table>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
   </body>
 </html>

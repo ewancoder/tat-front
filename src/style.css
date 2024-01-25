@@ -77,3 +77,37 @@ body {
 iframe {
   margin: 0 auto !important;
 }
+
+#sessions {
+    font-size: 1.2em;
+    margin: 0 auto;
+    width: 1200px;
+}
+
+td {
+    padding: 20px;
+}
+
+tr:nth-child(even) {
+  background-color: #d5eff2;
+}
+
+tr:nth-child(even) .replay-col:hover {
+  background-color: #d5ecef;
+}
+
+tr:nth-child(odd) {
+  background-color: #e8f3d1;
+}
+
+tr:nth-child(odd) .replay-col:hover {
+  background-color: #e5f0ce;
+}
+
+.length-col {
+    width: 100px;
+}
+
+.replay-col {
+    cursor: pointer;
+}
