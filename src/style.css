@@ -73,3 +73,7 @@ body {
 .toastify-avatar {
     width: auto;
 }
+
+iframe {
+  margin: 0 auto !important;
+}
