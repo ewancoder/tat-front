@@ -5,3 +5,9 @@
 typingrealm.com {
     reverse_proxy typingrealm-web-ui:80
 }
+
+api.typingrealm.com {
+    handle_path /typing/* {
+        reverse_proxy typingrealm-typing:8080
+    }
+}

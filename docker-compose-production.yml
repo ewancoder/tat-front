@@ -1,14 +1,13 @@
 version: "3.8"
 
 networks:
-  typingrealm-web-ui-net:
+  default:
+    name: typingrealm
 
 services:
   typingrealm-web-ui:
     image: ${DOCKER_REGISTRY-}typingrealm-web-ui
     container_name: typingrealm-web-ui
-    networks:
-      - typingrealm-web-ui-net
     build:
       context: .
       dockerfile: Dockerfile-production
@@ -19,8 +18,6 @@ services:
   typingrealm-caddy:
     image: caddy
     container_name: typingrealm-caddy
-    networks:
-      - typingrealm-web-ui-net
     ports:
       - 80:80
       - 443:443
