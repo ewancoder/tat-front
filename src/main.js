@@ -20,14 +20,21 @@ window.submitText = async function submitText() {
 }
 
 async function uploadResults(results) {
-    await fetch(config.typingApiUrl, {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${auth.token}`,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(results)
-    });
+    try {
+        await fetch(config.typingApiUrl, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${auth.token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(results)
+        });
+
+        alertSuccess();
+    }
+    catch {
+        alertError();
+    }
 }
 
 function showTextInputArea() {
@@ -39,6 +46,30 @@ function showTextInputArea() {
 const textElement = document.getElementById('text');
 const inputAreaElement = document.getElementById('input-area');
 const inputElement = document.getElementById('input');
+
+function alertSuccess() {
+    toast("Typing statistics have been saved", 3000, "#7db");
+}
+
+function alertError() {
+    toast("Failed to upload typing statistics", 5000, "#d77");
+}
+
+function toast(text, duration, background) {
+    Toastify({
+        text: text,
+        duration: duration,
+        gravity: "bottom", // `top` or `bottom`
+        position: "center", // `left`, `center` or `right`
+        avatar: 'logo.png',
+        stopOnFocus: true, // Prevents dismissing of toast on hover
+        style: {
+            background: background,
+            color: "#000",
+            fontSize: "1.3rem"
+        }
+    }).showToast();
+}
 
 const typingState = initializeTypingState(textElement, async data => {
     if (!isReplaying) {

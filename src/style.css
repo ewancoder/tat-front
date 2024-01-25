@@ -69,3 +69,7 @@ body {
 .submit-button:hover {
     background-color: #7A7A7A;
 }
+
+.toastify-avatar {
+    width: auto;
+}
