@@ -4,7 +4,16 @@
     <link rel="stylesheet" href="style.css">
   </head>
   <body>
-    <script type="module" src="main.js"></script>
+    <script defer>
+      window.auth = {};
+      window.signin = function(response) {
+        window.auth.token = response.credential;
+        document.getElementById('authentication').classList.add('hidden');
+        document.getElementById('input').value = '';
+        document.getElementById('input-area').classList.remove('hidden');
+      };
+    </script>
+    <script type="module" src="main.js" defer></script>
     <div id="authentication">
       <div id="g_id_onload"
            data-client_id="400839590162-24pngke3ov8rbi2f3forabpaufaosldg.apps.googleusercontent.com"

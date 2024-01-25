@@ -1,11 +1,8 @@
 import { initializeTypingState } from './typing.js';
 import { config } from './config.js';
 
-window.signin = async function(response) {
-    auth.token = response.credential;
-    document.getElementById('authentication').classList.add('hidden');
-    showTextInputArea();
-};
+// Authentication token is saved here after authenticating.
+const auth = window.auth;
 
 let isReplaying = false;
 let replayEvents = undefined;
@@ -37,9 +34,6 @@ function showTextInputArea() {
     inputElement.value = '';
     inputAreaElement.classList.remove('hidden');
 }
-
-// Authentication token is saved here after authenticating.
-const auth = {};
 
 // Element where the text that you're typing is drawn.
 const textElement = document.getElementById('text');
