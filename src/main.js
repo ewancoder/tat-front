@@ -14,7 +14,13 @@ window.onSignIn = async function() {
     inputElement.value = '';
     inputAreaElement.classList.remove('hidden');
 
+    await reloadTypingSessions();
+    sessionsElement.classList.remove('hidden');
+}
+
+async function reloadTypingSessions() {
     const sessions = await queryTypingSessions();
+    sessionsElement.innerHTML = '';
 
     // TODO: Make sure new session is added to the list of sessions after a new text has been typed.
     for (const session of sessions) {
@@ -41,8 +47,6 @@ window.onSignIn = async function() {
 
         sessionsElement.appendChild(row);
     }
-
-    sessionsElement.classList.remove('hidden');
 }
 
 async function replayTypingSession(typingSessionId) {
@@ -137,7 +141,10 @@ async function uploadResults(results) {
     }
     catch {
         alertError("Failed to upload typing statistics");
+        return;
     }
+
+    await reloadTypingSessions();
 }
 
 function showControls() {
@@ -172,7 +179,7 @@ function toast(text, duration, background) {
 
 const typingState = initializeTypingState(textElement, async data => {
     if (!isReplaying) {
-        uploadResults(data)
+        uploadResults(data); // Intentionally not awaited for faster UI experience.
         showControls();
     }
 
