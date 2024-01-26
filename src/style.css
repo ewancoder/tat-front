@@ -85,29 +85,30 @@ iframe {
 }
 
 td {
-    padding: 20px;
+    padding: 10px;
 }
 
 tr:nth-child(even) {
-  background-color: #d5eff2;
+  background-color: #ffe4d3;
 }
 
 tr:nth-child(even) .replay-col:hover {
-  background-color: #d5ecef;
+  background-color: #ffe4d3;
 }
 
 tr:nth-child(odd) {
-  background-color: #e8f3d1;
+  background-color: #f9eae1;
 }
 
 tr:nth-child(odd) .replay-col:hover {
-  background-color: #e5f0ce;
+  background-color: #f9eae1;
 }
 
 .length-col {
     width: 100px;
+    font-size: 0.8em;
 }
 
-.replay-col {
+.clickable {
     cursor: pointer;
 }

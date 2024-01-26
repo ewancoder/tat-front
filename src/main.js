@@ -35,18 +35,62 @@ async function reloadTypingSessions() {
 
         const replayCol = document.createElement('td');
         replayCol.innerHTML = '▶';
-        replayCol.classList.add('replay-col');
+        replayCol.classList.add('clickable');
 
         replayCol.onclick = function() {
             replayTypingSession(session.id);
         };
 
+        const deleteCol = document.createElement('td');
+        const rollbackCol = document.createElement('td');
+
+        deleteCol.innerHTML = '✖';
+        deleteCol.classList.add('clickable');
+
+        deleteCol.onclick = async function() {
+            await deleteTypingSession(session.id);
+            deleteCol.classList.add('hidden');
+            rollbackCol.classList.remove('hidden');
+        };
+
+        rollbackCol.innerHTML = '⎌';
+        rollbackCol.classList.add('clickable');
+        rollbackCol.classList.add('hidden');
+
+        rollbackCol.onclick = async function() {
+            await rollbackDeletingTypingSession(session.id);
+            rollbackCol.classList.add('hidden');
+            deleteCol.classList.remove('hidden');
+        }
+
         row.appendChild(textCol);
         row.appendChild(lengthCol);
         row.appendChild(replayCol);
+        row.appendChild(deleteCol);
+        row.appendChild(rollbackCol);
 
         sessionsElement.appendChild(row);
     }
+}
+
+async function deleteTypingSession(id) {
+    // TODO: Add error handling.
+    await fetch(`${config.typingApiUrl}/${id}`, {
+        method: 'DELETE',
+        headers: {
+            'Authorization': `Bearer ${auth.token}`
+        }
+    });
+}
+
+async function rollbackDeletingTypingSession(id) {
+    // TODO: Add error handling.
+    await fetch(`${config.typingApiUrl}/${id}/rollback-archive`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${auth.token}`
+        }
+    });
 }
 
 async function replayTypingSession(typingSessionId) {
