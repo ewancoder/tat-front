@@ -54,13 +54,12 @@ async function replayTypingSession(typingSessionId) {
 
     const text = session.text;
 
-    // Wait till current simulation ends if any.
-    isReplaying = false;
-    // TODO: FIX this hacky approach. Make an awaitable promise that I can wait for.
-    await new Promise(resolve => setTimeout(resolve, 100));
+    // Stop current replay.
+    isReplaying[currentlyReplaying] = false;
 
     // Start next simulation.
-    isReplaying = true;
+    currentlyReplaying++;
+    isReplaying[currentlyReplaying] = true;
     typingState.prepareText(text, textElement);
 
     // TODO: This code is duplicated in 2 places.
@@ -77,7 +76,7 @@ async function replayTypingSession(typingSessionId) {
         return result;
     });
 
-    await showReplay();
+    await showReplay(currentlyReplaying);
 }
 
 async function queryTypingSessions() {
@@ -110,7 +109,8 @@ async function queryTypingSession(id) {
     }
 }
 
-let isReplaying = false;
+let currentlyReplaying = 0;
+let isReplaying = {};
 let replayEvents = undefined;
 window.submitText = async function submitText() {
     if (inputElement.value === '') return;
@@ -120,7 +120,9 @@ window.submitText = async function submitText() {
     sessionsElement.classList.add('hidden');
     typingState.prepareText(text, textElement);
 
-    isReplaying = false;
+    isReplaying[currentlyReplaying] = false;
+    currentlyReplaying++;
+
     replayEvents = undefined;
     document.addEventListener('keydown', processKeyDown);
     document.addEventListener('keyup', processKeyUp);
@@ -178,12 +180,13 @@ function toast(text, duration, background) {
 }
 
 const typingState = initializeTypingState(textElement, async data => {
-    if (!isReplaying) {
+    if (!isReplaying[currentlyReplaying]) {
         uploadResults(data); // Intentionally not awaited for faster UI experience.
         showControls();
     }
 
-    isReplaying = true;
+    currentlyReplaying++;
+    isReplaying[currentlyReplaying] = true;
     document.removeEventListener('keydown', processKeyDown);
     document.removeEventListener('keyup', processKeyUp);
     typingState.prepareText(data.text);
@@ -203,13 +206,13 @@ const typingState = initializeTypingState(textElement, async data => {
         });
     }
 
-    await showReplay();
+    await showReplay(currentlyReplaying);
 });
 
-async function showReplay() {
+async function showReplay(cr) {
     for (const replayEvent of replayEvents) {
         await new Promise(resolve => setTimeout(resolve, replayEvent.wait));
-        if (!isReplaying) return;
+        if (!isReplaying[cr]) return;
 
         if (replayEvent.keyAction === 'Press') {
             processKeyDown({ key: replayEvent.key });
