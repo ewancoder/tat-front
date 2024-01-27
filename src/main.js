@@ -182,11 +182,11 @@ const typingState = initializeTypingState(textElement, async data => {
     if (!replay.isReplaying()) {
         uploadResults(data); // Intentionally not awaited for faster UI experience.
         showControls();
-    }
 
-    document.removeEventListener('keydown', replay.processKeyDown);
-    document.removeEventListener('keyup', replay.processKeyUp);
-    replay.replayText(data.text, data.events);
+        document.removeEventListener('keydown', replay.processKeyDown);
+        document.removeEventListener('keyup', replay.processKeyUp);
+        replay.replayText(data.text, data.events);
+    }
 });
 
 const replay = createReplay(config, notifier, typingState);

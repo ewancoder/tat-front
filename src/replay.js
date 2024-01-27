@@ -95,7 +95,6 @@ export function createReplay(config, notifier, typingState) {
             });
 
             await showReplay(currentlyReplaying, replayEvents);
-
         },
 
         isReplaying: function() {
