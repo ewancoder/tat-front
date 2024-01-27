@@ -4,7 +4,7 @@ import { notifier } from './notifier.js';
 import { config } from './config.js';
 
 // Authentication token is saved here after authenticating.
-const auth = window.auth;
+const auth = {};
 
 // Element where the text that you're typing is drawn.
 const textElement = document.getElementById('text');
@@ -12,7 +12,9 @@ const inputAreaElement = document.getElementById('input-area');
 const inputElement = document.getElementById('input');
 const sessionsElement = document.getElementById('sessions');
 
-window.onSignIn = async function() {
+window.onSignIn = async function(token) {
+    auth.token = token;
+
     inputElement.value = '';
     inputAreaElement.classList.remove('hidden');
 

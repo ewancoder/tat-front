@@ -6,11 +6,9 @@
   </head>
   <body>
     <script defer>
-      window.auth = {};
       window.signin = function(response) {
-        window.auth.token = response.credential;
         document.getElementById('authentication').classList.add('hidden');
-        window.onSignIn();
+        window.onSignIn(response.credential);
       };
     </script>
     <script type="module" src="main.js" defer></script>
