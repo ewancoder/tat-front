@@ -112,3 +112,7 @@ tr:nth-child(odd) .replay-col:hover {
 .clickable {
     cursor: pointer;
 }
+
+.disabled {
+    color: #aaa;
+}

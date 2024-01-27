@@ -37,9 +37,10 @@ async function reloadTypingSessions() {
         replayCol.innerHTML = '▶';
         replayCol.classList.add('clickable');
 
-        replayCol.onclick = function() {
+        const onClick = function() {
             replayTypingSession(session.id);
         };
+        replayCol.onclick = onClick;
 
         const deleteCol = document.createElement('td');
         const rollbackCol = document.createElement('td');
@@ -51,6 +52,9 @@ async function reloadTypingSessions() {
             await deleteTypingSession(session.id);
             deleteCol.classList.add('hidden');
             rollbackCol.classList.remove('hidden');
+            replayCol.onclick = undefined;
+            replayCol.classList.remove('clickable');
+            replayCol.classList.add('disabled');
         };
 
         rollbackCol.innerHTML = '⎌';
@@ -61,6 +65,9 @@ async function reloadTypingSessions() {
             await rollbackDeletingTypingSession(session.id);
             rollbackCol.classList.add('hidden');
             deleteCol.classList.remove('hidden');
+            replayCol.onclick = onClick;
+            replayCol.classList.add('clickable');
+            replayCol.classList.remove('disabled');
         }
 
         row.appendChild(textCol);
