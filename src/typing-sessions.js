@@ -1,6 +1,8 @@
 import { config } from './config.js';
+import { auth } from './auth.js';
+import { notifier } from './notifier.js';
 
-export async function initializeSessions(auth, notifier, replay, domElement) {
+export async function initializeSessions(replay, domElement) {
     let infos = await queryTypingSessions();
     let sessionsCache = {};
 

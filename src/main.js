@@ -2,27 +2,24 @@ import { initializeTypingState } from './typing.js';
 import { createReplay } from './replay.js';
 import { notifier } from './notifier.js';
 import { initializeSessions } from './typing-sessions.js';
+import { auth, setupAuthCallback } from './auth.js';
+
+// Sessions manager for reviewing and deleting previous sessions.
+let sessions = undefined;
 
 // Authentication token is saved here after authenticating.
-const auth = {};
+setupAuthCallback(async () => {
+    inputElement.value = '';
+    inputAreaElement.classList.remove('hidden');
+
+    sessions = await initializeSessions(replay, sessionsElement);
+});
 
 // Element where the text that you're typing is drawn.
 const textElement = document.getElementById('text');
 const inputAreaElement = document.getElementById('input-area');
 const inputElement = document.getElementById('input');
 const sessionsElement = document.getElementById('sessions');
-
-let sessions = undefined;
-window.onSignIn = async function(token) {
-    auth.token = token;
-
-    inputElement.value = '';
-    inputAreaElement.classList.remove('hidden');
-
-    // TODO: Consider initializing on startup, and having a separate method to get the data here.
-    // Or after authentication is done, on async background callback.
-    sessions = await initializeSessions(auth, notifier, replay, sessionsElement);
-}
 
 window.submitText = async function submitText() {
     if (inputElement.value.trim() === '') {
@@ -37,13 +34,19 @@ window.submitText = async function submitText() {
     }
 
     const text = await getNextText();
-    inputAreaElement.classList.add('hidden');
-    sessions.hide();
+
+    hideControls();
+
     typingState.prepareText(text);
 
     replay.stop();
     document.addEventListener('keydown', replay.processKeyDown);
     document.addEventListener('keyup', replay.processKeyUp);
+}
+
+function hideControls() {
+    inputAreaElement.classList.add('hidden');
+    sessions.hide();
 }
 
 function showControls() {
