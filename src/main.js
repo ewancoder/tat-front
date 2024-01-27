@@ -166,6 +166,12 @@ let replayEvents = undefined;
 window.submitText = async function submitText() {
     if (inputElement.value === '') return;
 
+    // If text is too long.
+    if (inputElement.value.length > 10000) {
+        alertError('Text is too long.');
+        return;
+    }
+
     const text = await getNextText();
     inputAreaElement.classList.add('hidden');
     sessionsElement.classList.add('hidden');
