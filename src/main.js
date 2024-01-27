@@ -1,4 +1,6 @@
 import { initializeTypingState } from './typing.js';
+import { createReplay } from './replay.js';
+import { notifier } from './notifier.js';
 import { config } from './config.js';
 
 // Authentication token is saved here after authenticating.
@@ -38,7 +40,7 @@ async function reloadTypingSessions() {
         replayCol.classList.add('clickable');
 
         const onClick = function() {
-            replayTypingSession(session.id);
+            replay.replayTypingSession(session.id);
         };
         replayCol.onclick = onClick;
 
@@ -100,36 +102,6 @@ async function rollbackDeletingTypingSession(id) {
     });
 }
 
-async function replayTypingSession(typingSessionId) {
-    const session = await queryTypingSession(typingSessionId);
-
-    const text = session.text;
-
-    // Stop current replay.
-    isReplaying[currentlyReplaying] = false;
-
-    // Start next simulation.
-    currentlyReplaying++;
-    isReplaying[currentlyReplaying] = true;
-    typingState.prepareText(text, textElement);
-
-    // TODO: This code is duplicated in 2 places.
-    const firstPerf = session.events[0].perf;
-    let prevPerf = 0;
-    replayEvents = session.events.map(event => {
-        const result = {
-            key: getReplayKey(event.key),
-            wait: event.perf - firstPerf - prevPerf,
-            keyAction: event.keyAction
-        };
-        prevPerf = event.perf - firstPerf;
-
-        return result;
-    });
-
-    await showReplay(currentlyReplaying);
-}
-
 async function queryTypingSessions() {
     try {
         const response = await fetch(config.typingApiUrl, {
@@ -141,7 +113,7 @@ async function queryTypingSessions() {
         return await response.json();
     }
     catch {
-        alertError("Could not get user typing sessions");
+        notifier.alertError("Could not get user typing sessions");
     }
 }
 
@@ -156,33 +128,27 @@ async function queryTypingSession(id) {
         return await response.json();
     }
     catch {
-        alertError("Could not load user typing session");
+        notifier.alertError("Could not load user typing session");
     }
 }
 
-let currentlyReplaying = 0;
-let isReplaying = {};
-let replayEvents = undefined;
 window.submitText = async function submitText() {
     if (inputElement.value === '') return;
 
     // If text is too long.
     if (inputElement.value.length > 10000) {
-        alertError('Text is too long.');
+        notifier.alertError('Text is too long.');
         return;
     }
 
     const text = await getNextText();
     inputAreaElement.classList.add('hidden');
     sessionsElement.classList.add('hidden');
-    typingState.prepareText(text, textElement);
+    typingState.prepareText(text);
 
-    isReplaying[currentlyReplaying] = false;
-    currentlyReplaying++;
-
-    replayEvents = undefined;
-    document.addEventListener('keydown', processKeyDown);
-    document.addEventListener('keyup', processKeyUp);
+    replay.stop();
+    document.addEventListener('keydown', replay.processKeyDown);
+    document.addEventListener('keyup', replay.processKeyUp);
 }
 
 async function uploadResults(results) {
@@ -196,10 +162,10 @@ async function uploadResults(results) {
             body: JSON.stringify(results)
         });
 
-        alertSuccess("Typing statistics have been saved");
+        notifier.alertSuccess("Typing statistics have been saved");
     }
     catch {
-        alertError("Failed to upload typing statistics");
+        notifier.alertError("Failed to upload typing statistics");
         return;
     }
 
@@ -212,108 +178,19 @@ function showControls() {
     sessionsElement.classList.remove('hidden');
 }
 
-function alertSuccess(text) {
-    toast(text, 3000, "#7db");
-}
-
-function alertError(text) {
-    toast(text, 5000, "#d77");
-}
-
-function toast(text, duration, background) {
-    Toastify({
-        text: text,
-        duration: duration,
-        gravity: "bottom", // `top` or `bottom`
-        position: "center", // `left`, `center` or `right`
-        avatar: 'logo.png',
-        stopOnFocus: true, // Prevents dismissing of toast on hover
-        style: {
-            background: background,
-            color: "#000",
-            fontSize: "1.3rem"
-        }
-    }).showToast();
-}
-
 const typingState = initializeTypingState(textElement, async data => {
-    if (!isReplaying[currentlyReplaying]) {
+    if (!replay.isReplaying()) {
         uploadResults(data); // Intentionally not awaited for faster UI experience.
         showControls();
     }
 
-    currentlyReplaying++;
-    isReplaying[currentlyReplaying] = true;
-    document.removeEventListener('keydown', processKeyDown);
-    document.removeEventListener('keyup', processKeyUp);
-    typingState.prepareText(data.text);
-
-    if (replayEvents === undefined) {
-        const firstPerf = data.events[0].perf;
-        let prevPerf = 0;
-        replayEvents = data.events.map(event => {
-            const result = {
-                key: getReplayKey(event.key),
-                wait: event.perf - firstPerf - prevPerf,
-                keyAction: event.keyAction
-            };
-            prevPerf = event.perf - firstPerf;
-
-            return result;
-        });
-    }
-
-    await showReplay(currentlyReplaying);
+    document.removeEventListener('keydown', replay.processKeyDown);
+    document.removeEventListener('keyup', replay.processKeyUp);
+    replay.replayText(data.text, data.events);
 });
 
-async function showReplay(cr) {
-    for (const replayEvent of replayEvents) {
-        await new Promise(resolve => setTimeout(resolve, replayEvent.wait));
-        if (!isReplaying[cr]) return;
-
-        if (replayEvent.keyAction === 'Press') {
-            processKeyDown({ key: replayEvent.key });
-        } else {
-            processKeyUp({ key: replayEvent.key });
-        }
-    }
-}
-
-function getReplayKey(key) {
-    if (key === 'LShift' || key === 'RShift') {
-        return 'Shift';
-    }
-
-    return key;
-}
-
-function processKeyDown(event) {
-    const perf = performance.now();
-    const key = getKey(event);
-
-    typingState.pressKey(key, perf);
-}
-
-function processKeyUp(event) {
-    const perf = performance.now();
-    const key = getKey(event);
-
-    typingState.releaseKey(key, perf);
-}
-
-function getKey(event) {
-    if (event.code === 'ShiftLeft') return 'LShift';
-    if (event.code === 'ShiftRight') return 'RShift';
-
-    if (event.key.length === 1 || event.key === 'Backspace') {
-        return event.key;
-    }
-
-    return null;
-}
+const replay = createReplay(config, notifier, typingState);
 
 function getNextText() {
-    //return 'Sample text that you need to type.';
-
     return inputElement.value;
 }
