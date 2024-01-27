@@ -39,8 +39,10 @@ async function reloadTypingSessions() {
         replayCol.innerHTML = '▶';
         replayCol.classList.add('clickable');
 
-        const onClick = function() {
-            replay.replayTypingSession(session.id);
+        const onClick = async function() {
+            const loadedSession = await queryTypingSession(session.id);
+
+            replay.replayTypingSession(loadedSession.text, loadedSession.events);
         };
         replayCol.onclick = onClick;
 
@@ -185,11 +187,11 @@ const typingState = initializeTypingState(textElement, async data => {
 
         document.removeEventListener('keydown', replay.processKeyDown);
         document.removeEventListener('keyup', replay.processKeyUp);
-        replay.replayText(data.text, data.events);
+        replay.replayTypingSession(data.text, data.events);
     }
 });
 
-const replay = createReplay(config, notifier, typingState);
+const replay = createReplay(typingState);
 
 function getNextText() {
     return inputElement.value;

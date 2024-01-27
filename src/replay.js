@@ -1,21 +1,6 @@
-export function createReplay(config, notifier, typingState) {
+export function createReplay(typingState) {
     let currentlyReplaying = 0;
     const isReplayingObj = {};
-
-    async function queryTypingSession(id) {
-        try {
-            const response = await fetch(`${config.typingApiUrl}/${id}`, {
-                headers: {
-                    'Authorization': `Bearer ${auth.token}`
-                }
-            });
-
-            return await response.json();
-        }
-        catch {
-            notifier.alertError("Could not load user typing session");
-        }
-    }
 
     function getReplayKey(key) {
         if (key === 'LShift' || key === 'RShift') {
@@ -64,15 +49,7 @@ export function createReplay(config, notifier, typingState) {
     }
 
     return {
-        replayTypingSession: async function(typingSessionId) {
-            const session = await queryTypingSession(typingSessionId);
-
-            const text = session.text;
-
-            await this.replayText(text, session.events);
-        },
-
-        replayText: async function(text, events) {
+        replayTypingSession: async function(text, events) {
             // Stop current replay.
             isReplayingObj[currentlyReplaying] = false;
 
