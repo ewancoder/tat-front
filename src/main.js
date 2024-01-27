@@ -135,7 +135,10 @@ async function queryTypingSession(id) {
 }
 
 window.submitText = async function submitText() {
-    if (inputElement.value === '') return;
+    if (inputElement.value.trim() === '') {
+        notifier.alertError('Please enter non-empty text to start.');
+        return;
+    }
 
     // If text is too long.
     if (inputElement.value.length > 10000) {
