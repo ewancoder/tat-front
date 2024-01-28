@@ -2,7 +2,7 @@ import { initializeTypingState } from './typing.js';
 import { createReplay } from './replay.js';
 import { notifier } from './notifier.js';
 import { initializeSessions } from './typing-sessions.js';
-import { auth, setupAuthCallback } from './auth.js';
+import { setupAuthCallback } from './auth.js';
 
 // Sessions manager for reviewing and deleting previous sessions.
 let sessions = undefined;
