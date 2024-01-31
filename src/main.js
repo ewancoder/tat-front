@@ -13,7 +13,8 @@ window.onload = function() {
         callback: authCallback,
         auto_select: true,
         itp_support: true,
-        use_fedcm_for_prompt: true
+        use_fedcm_for_prompt: true,
+        cancel_on_tap_outside: false
     });
     google.accounts.id.prompt();
 
@@ -31,10 +32,28 @@ window.onload = function() {
     }, 1000); // A hack so the google button doesn't look ugly.
 }
 
+function triggerSilentAuth() {
+    google.accounts.id.prompt();
+}
+
+let isLoggedIn = false;
 const inputAreaElement = document.getElementById('input-area');
 // Authentication token is saved here after authenticating.
 async function authCallback(response) {
     auth.token = response.credential;
+    isLoggedIn = true;
+
+    const msTillReAuthenticate = getMsTillReAuthenticate(auth.token);
+    setTimeout(() => {
+        isLoggedIn = false;
+        triggerSilentAuth();
+
+        setTimeout(() => {
+            if (!isLoggedIn) {
+                authElement.classList.remove('hidden');
+            }
+        }, 60000);
+    }, msTillReAuthenticate);
 
     authElement.classList.add('hidden');
     inputAreaElement.classList.remove('hidden');
@@ -98,4 +117,22 @@ const replay = createReplay(typingState);
 
 function getNextText() {
     return inputElement.value;
+}
+
+function getMsTillReAuthenticate(token) {
+    return (getExpiration(token) * 1000) - Date.now() - (60 * 5 * 1000);
+}
+
+function getExpiration(token) {
+    return parseJwt(token).exp;
+}
+
+function parseJwt(token) {
+    var base64Url = token.split('.')[1];
+    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+
+    return JSON.parse(jsonPayload);
 }
