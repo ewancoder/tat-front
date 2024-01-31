@@ -104,6 +104,17 @@ export async function initializeSessions(replay, domElement) {
             replayCol.onclick = undefined;
             replayCol.classList.remove('clickable');
             replayCol.classList.add('disabled');
+
+            confirmDeleteCol.classList.remove('hidden');
+        };
+
+        const confirmDeleteCol = document.createElement('td');
+        confirmDeleteCol.innerHTML = '✖';
+        confirmDeleteCol.classList.add('hidden');
+        confirmDeleteCol.style = 'color: #f00';
+        confirmDeleteCol.classList.add('clickable');
+        confirmDeleteCol.onclick = function() {
+            domElement.removeChild(row);
         };
 
         rollbackCol.innerHTML = '⎌';
@@ -117,6 +128,7 @@ export async function initializeSessions(replay, domElement) {
             replayCol.onclick = onClick;
             replayCol.classList.add('clickable');
             replayCol.classList.remove('disabled');
+            confirmDeleteCol.classList.add('hidden');
         }
 
         row.appendChild(textCol);
@@ -124,6 +136,7 @@ export async function initializeSessions(replay, domElement) {
         row.appendChild(replayCol);
         row.appendChild(deleteCol);
         row.appendChild(rollbackCol);
+        row.appendChild(confirmDeleteCol);
 
         if (insertAsFirst) {
             domElement.insertBefore(row, domElement.firstChild);
