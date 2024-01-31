@@ -37,6 +37,7 @@ function triggerSilentAuth() {
 }
 
 let isLoggedIn = false;
+let loggingInFirstTime = true;
 const inputAreaElement = document.getElementById('input-area');
 // Authentication token is saved here after authenticating.
 async function authCallback(response) {
@@ -57,7 +58,11 @@ async function authCallback(response) {
 
     authElement.classList.add('hidden');
     inputAreaElement.classList.remove('hidden');
-    sessions = await initializeSessions(replay, sessionsElement);
+
+    if (loggingInFirstTime) {
+        sessions = await initializeSessions(replay, sessionsElement);
+        loggingInFirstTime = false;
+    }
 }
 
 // Sessions manager for reviewing and deleting previous sessions.
