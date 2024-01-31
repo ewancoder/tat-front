@@ -1,6 +1,7 @@
 import { config } from './config.js';
 import { auth } from './auth.js';
 import { notifier } from './notifier.js';
+import { http } from './http.js';
 
 export async function initializeSessions(replay, domElement) {
     let infos = await queryTypingSessions();
@@ -14,12 +15,7 @@ export async function initializeSessions(replay, domElement) {
 
     async function queryTypingSessions() {
         try {
-            const response = await fetch(config.typingApiUrl, {
-                headers: {
-                    'Authorization': `Bearer ${auth.token}`
-                }
-            });
-
+            const response = await http.get(config.typingApiUrl);
             return await response.json();
         }
         catch {
@@ -31,11 +27,7 @@ export async function initializeSessions(replay, domElement) {
         if (sessionsCache[id]) return sessionsCache[id];
 
         try {
-            const response = await fetch(`${config.typingApiUrl}/${id}`, {
-                headers: {
-                    'Authorization': `Bearer ${auth.token}`
-                }
-            });
+            const response = await http.get(`${config.typingApiUrl}/${id}`);
 
             const session = await response.json();
             sessionsCache[id] = session;
@@ -48,14 +40,7 @@ export async function initializeSessions(replay, domElement) {
 
     async function uploadResults(results) {
         try {
-            const response = await fetch(config.typingApiUrl, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${auth.token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(results)
-            });
+            const response = await http.post(config.typingApiUrl, results);
 
             // TODO: Move outside of this try block.
             const info = await response.json();
@@ -147,22 +132,12 @@ export async function initializeSessions(replay, domElement) {
 
     async function deleteTypingSession(id) {
         // TODO: Add error handling.
-        await fetch(`${config.typingApiUrl}/${id}`, {
-            method: 'DELETE',
-            headers: {
-                'Authorization': `Bearer ${auth.token}`
-            }
-        });
+        await http.delete(`${config.typingApiUrl}/${id}`);
     }
 
     async function rollbackDeletingTypingSession(id) {
         // TODO: Add error handling.
-        await fetch(`${config.typingApiUrl}/${id}/rollback-archive`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${auth.token}`
-            }
-        });
+        await http.post(`${config.typingApiUrl}/${id}/rollback-archive`);
     }
 
     return {

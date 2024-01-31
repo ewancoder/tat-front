@@ -2,68 +2,14 @@ import { initializeTypingState } from './typing.js';
 import { createReplay } from './replay.js';
 import { notifier } from './notifier.js';
 import { initializeSessions } from './typing-sessions.js';
-import { auth } from './auth.js';
+import { addAuthCallback } from './auth.js';
+import './google-auth.js';
 
-const authElement = document.getElementById('authentication');
-const authModalElement = document.getElementById('authentication-modal');
-const body = document.body;
-
-window.onload = function() {
-    google.accounts.id.initialize({
-        client_id: '400839590162-24pngke3ov8rbi2f3forabpaufaosldg.apps.googleusercontent.com',
-        context: 'signin',
-        ux_mode: 'popup',
-        callback: authCallback,
-        auto_select: true,
-        itp_support: true,
-        use_fedcm_for_prompt: true,
-        cancel_on_tap_outside: false
-    });
-    google.accounts.id.prompt();
-
-    google.accounts.id.renderButton(authElement, {
-        type: 'standard',
-        shape: 'rectangular',
-        theme: 'filled_black',
-        text: 'signin',
-        size: 'large',
-        logo_alignment: 'left'
-    });
-
-    setTimeout(() => {
-        authModalElement.classList.add('showup');
-    }, 1000); // A hack so the google button doesn't look ugly.
-}
-
-function triggerSilentAuth() {
-    google.accounts.id.prompt();
-}
-
-let isLoggedIn = false;
 let loggingInFirstTime = true;
 const inputAreaElement = document.getElementById('input-area');
 // Authentication token is saved here after authenticating.
-async function authCallback(response) {
-    auth.token = response.credential;
-    isLoggedIn = true;
 
-    const msTillReAuthenticate = getMsTillReAuthenticate(auth.token);
-    setTimeout(() => {
-        isLoggedIn = false;
-        triggerSilentAuth();
-
-        setTimeout(() => {
-            if (!isLoggedIn) {
-                authModalElement.classList.remove('hidden');
-
-                typingState.reset();
-            }
-        }, 60000);
-    }, msTillReAuthenticate);
-
-    authModalElement.classList.add('hidden');
-    body.classList.remove('non-scrollable');
-
+addAuthCallback(async () => {
     if (loggingInFirstTime) {
         sessions = await initializeSessions(replay, sessionsElement);
         loggingInFirstTime = false;
@@ -73,7 +19,7 @@ async function authCallback(response) {
     if (!typingState.canType('a')) {
         showControls();
     }
-}
+})
 
 // Sessions manager for reviewing and deleting previous sessions.
 let sessions = undefined;
