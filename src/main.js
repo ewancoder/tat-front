@@ -5,6 +5,9 @@ import { initializeSessions } from './typing-sessions.js';
 import { auth } from './auth.js';
 
 const authElement = document.getElementById('authentication');
+const authModalElement = document.getElementById('authentication-modal');
+const body = document.body;
+
 window.onload = function() {
     google.accounts.id.initialize({
         client_id: '400839590162-24pngke3ov8rbi2f3forabpaufaosldg.apps.googleusercontent.com',
@@ -28,7 +31,7 @@ window.onload = function() {
     });
 
     setTimeout(() => {
-        authElement.classList.add('showup');
+        authModalElement.classList.add('showup');
     }, 1000); // A hack so the google button doesn't look ugly.
 }
 
@@ -51,17 +54,24 @@ async function authCallback(response) {
 
         setTimeout(() => {
             if (!isLoggedIn) {
-                authElement.classList.remove('hidden');
+                authModalElement.classList.remove('hidden');
+
+                typingState.reset();
             }
         }, 60000);
     }, msTillReAuthenticate);
 
-    authElement.classList.add('hidden');
-    inputAreaElement.classList.remove('hidden');
+    authModalElement.classList.add('hidden');
+    body.classList.remove('non-scrollable');
 
     if (loggingInFirstTime) {
         sessions = await initializeSessions(replay, sessionsElement);
         loggingInFirstTime = false;
+    }
+
+    // Hacky way to check if typing atm.
+    if (!typingState.canType('a')) {
+        showControls();
     }
 }
 
@@ -87,33 +97,37 @@ window.submitText = async function submitText() {
 
     const text = await getNextText();
 
-    hideControls();
 
     typingState.prepareText(text);
 
     replay.stop();
-    document.addEventListener('keydown', replay.processKeyDown);
-    document.addEventListener('keyup', replay.processKeyUp);
+
+    hideControls();
 }
 
 function hideControls() {
     inputAreaElement.classList.add('hidden');
     sessions.hide();
+
+    document.addEventListener('keydown', replay.processKeyDown);
+    document.addEventListener('keyup', replay.processKeyUp);
 }
 
 function showControls() {
     inputElement.value = '';
     inputAreaElement.classList.remove('hidden');
     sessions.show();
+
+    document.removeEventListener('keydown', replay.processKeyDown);
+    document.removeEventListener('keyup', replay.processKeyUp);
 }
 
 const typingState = initializeTypingState(textElement, async data => {
     if (!replay.isReplaying()) {
         sessions.uploadResults(data); // Intentionally not awaited for faster UI experience.
+
         showControls();
 
-        document.removeEventListener('keydown', replay.processKeyDown);
-        document.removeEventListener('keyup', replay.processKeyUp);
         replay.replayTypingSession(data.text, data.events);
     }
 });

@@ -5,14 +5,17 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://accounts.google.com/gsi/client" async></script>
   </head>
-  <body>
-    <div id="authentication" class="invisible"></div>
+  <body class="non-scrollable">
     <div id="input-area" class="hidden">
       <textarea id="input"></textarea>
       <button class="submit-button" onclick="submitText()">Start</button>
     </div>
     <div id="text"></div>
-    <table id="sessions" class="hidden"></table>
+    <table id="sessions"></table>
+    <div id="authentication-modal" class="invisible modal">
+      <div class="blur"></div>
+      <div id="authentication"></div>
+    </div>
     <script type="module" src="main.js" defer></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
   </body>
