@@ -2,22 +2,50 @@ import { initializeTypingState } from './typing.js';
 import { createReplay } from './replay.js';
 import { notifier } from './notifier.js';
 import { initializeSessions } from './typing-sessions.js';
-import { setupAuthCallback } from './auth.js';
+import { auth } from './auth.js';
+
+const authElement = document.getElementById('authentication');
+window.onload = function() {
+    google.accounts.id.initialize({
+        client_id: '400839590162-24pngke3ov8rbi2f3forabpaufaosldg.apps.googleusercontent.com',
+        context: 'signin',
+        ux_mode: 'popup',
+        callback: authCallback,
+        auto_select: true,
+        itp_support: true,
+        use_fedcm_for_prompt: true
+    });
+    google.accounts.id.prompt();
+
+    google.accounts.id.renderButton(authElement, {
+        type: 'standard',
+        shape: 'rectangular',
+        theme: 'filled_black',
+        text: 'signin',
+        size: 'large',
+        logo_alignment: 'left'
+    });
+
+    setTimeout(() => {
+        authElement.classList.add('showup');
+    }, 1000); // A hack so the google button doesn't look ugly.
+}
+
+const inputAreaElement = document.getElementById('input-area');
+// Authentication token is saved here after authenticating.
+async function authCallback(response) {
+    auth.token = response.credential;
+
+    authElement.classList.add('hidden');
+    inputAreaElement.classList.remove('hidden');
+    sessions = await initializeSessions(replay, sessionsElement);
+}
 
 // Sessions manager for reviewing and deleting previous sessions.
 let sessions = undefined;
 
-// Authentication token is saved here after authenticating.
-setupAuthCallback(async () => {
-    inputElement.value = '';
-    inputAreaElement.classList.remove('hidden');
-
-    sessions = await initializeSessions(replay, sessionsElement);
-});
-
 // Element where the text that you're typing is drawn.
 const textElement = document.getElementById('text');
-const inputAreaElement = document.getElementById('input-area');
 const inputElement = document.getElementById('input');
 const sessionsElement = document.getElementById('sessions');
 

@@ -3,40 +3,17 @@
     <title>Typing Realm</title>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <link rel="stylesheet" href="style.css">
+    <script src="https://accounts.google.com/gsi/client" async></script>
   </head>
   <body>
-    <script defer>
-      window.signin = function(response) {
-        document.getElementById('authentication').classList.add('hidden');
-        window.onSignIn(response.credential);
-      };
-    </script>
-    <script type="module" src="main.js" defer></script>
-    <div id="authentication">
-      <div id="g_id_onload"
-           data-client_id="400839590162-24pngke3ov8rbi2f3forabpaufaosldg.apps.googleusercontent.com"
-           data-context="signin"
-           data-ux_mode="popup"
-           data-callback="signin"
-           data-auto_select="true"
-           data-itp_support="true">
-      </div>
-      <div class="g_id_signin"
-           data-type="standard"
-           data-shape="rectangular"
-           data-theme="filled_black"
-           data-text="signin"
-           data-size="large"
-           data-logo_alignment="left">
-      </div>
-    </div>
-    <script src="https://accounts.google.com/gsi/client" async></script>
+    <div id="authentication" class="invisible"></div>
     <div id="input-area" class="hidden">
       <textarea id="input"></textarea>
       <button class="submit-button" onclick="submitText()">Start</button>
     </div>
     <div id="text"></div>
     <table id="sessions" class="hidden"></table>
+    <script type="module" src="main.js" defer></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
   </body>
 </html>
