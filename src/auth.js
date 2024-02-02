@@ -1,29 +1,28 @@
 let _getToken = undefined;
 let _token = undefined;
-let _authenticatedCallback = undefined;
 
-export function addAuthCallback(callback) {
-    _authenticatedCallback = callback;
-}
-
+/** Sets up the function that is getting the token from authentication provider.
+ * This function will be called every time when we need a fresh token, which
+ * is then being cached until its expiration time. */
 export function setupAuth(getToken) {
     _getToken = getToken;
 }
 
+/** Use getToken method to get token, and isLoggedIn field to check whether
+ * user is logged in. */
 export const auth = {
+    /** Gets authentication token either from cache or from authentication
+     * provider, and then caches it. */
     getToken: async function() {
         if (this.isLoggedIn) {
             return _token;
         } else {
-            _token = await _getToken();
+            _token = await _getToken(); // Get token using authentication provider.
             this.isLoggedIn = true;
-            if (_authenticatedCallback) {
-                _authenticatedCallback();
-            }
 
             setTimeout(() => {
-                this.isLoggedIn = false;
-            }, getMsTillReAuthenticate(_token));
+                this.isLoggedIn = false; // Reset authenticated state when token is about to expire.
+            }, getMsTillAuthenticationIsRequired(_token));
 
             return _token;
         }
@@ -31,7 +30,9 @@ export const auth = {
     isLoggedIn: false
 };
 
-function getMsTillReAuthenticate(token) {
+// Functions below calculate the time when token expires.
+
+function getMsTillAuthenticationIsRequired(token) {
     return (getExpiration(token) * 1000) - Date.now() - (60 * 5 * 1000);
 }
 
