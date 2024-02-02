@@ -7,6 +7,7 @@ import './google-auth.js'; // Sets up google auth.
 
 // Initialize authentication.
 await auth.getToken();
+document.body.classList.remove('non-scrollable');
 
 let replay = undefined;
 let sessions = undefined;

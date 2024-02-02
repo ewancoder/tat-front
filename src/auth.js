@@ -19,7 +19,10 @@ export const auth = {
         if (this.isLoggedIn) {
             return _token;
         } else {
+            // Make sure this function actually gets the token only once,
+            // even if called multiple times in a row.
             await _lock;
+
             if (this.isLoggedIn) return _token;
 
             _lock = new Promise(resolve => _lockResolve = resolve);

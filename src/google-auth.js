@@ -1,8 +1,7 @@
-import { setupAuth, auth } from "./auth.js";
+import { setupAuth } from "./auth.js";
 
 const authElement = document.getElementById('authentication');
 const authModalElement = document.getElementById('authentication-modal');
-let _initialized = false;
 
 let initializedPromiseResolve = undefined;
 const initializedPromise = new Promise(resolve => initializedPromiseResolve = resolve);
@@ -29,7 +28,7 @@ window.onload = function() {
             logo_alignment: 'left'
         });
 
-        _initialized = true;
+        // Notify that google library is initialized.
         initializedPromiseResolve();
     }
 }
@@ -38,13 +37,15 @@ setupAuth(getToken);
 
 let acquiredTokenResolves = [];
 async function getToken() {
-    if (!_initialized) {
-        await initializedPromise;
-    }
+    await initializedPromise; // Wait until google library is initialized.
 
+    // Show FedCM / OneTap.
     google.accounts.id.prompt();
 
-    // TODO: Delay showing the button until user rejects FedCM window.
+    // TODO: Try to figure out how to delay showing the button until FedCM window is closed.
+    // Prompt method hangs for a long time if disabled,
+    // so we can't use its notification to display the button.
+    // Show button straight away.
     authModalElement.classList.remove('hidden');
     setTimeout(() => {
         authModalElement.classList.add('showup');
@@ -58,11 +59,13 @@ async function getToken() {
 async function authCallback(response) {
     const acquiredTokenResolvesCopy = acquiredTokenResolves;
     acquiredTokenResolves = [];
+    const token = response.credential;
     for (let resolve of acquiredTokenResolvesCopy) {
-        resolve(response.credential);
+        // Resolve the same for anyone who used getToken() method and is waiting for it.
+        resolve(token);
     }
 
+    // Hide button.
     authModalElement.classList.add('hidden');
     authModalElement.classList.remove('showup');
-    document.body.classList.remove('non-scrollable');
 }
