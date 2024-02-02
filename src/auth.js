@@ -1,5 +1,7 @@
 let _getToken = undefined;
 let _token = undefined;
+let _lock = Promise.resolve();
+let _lockResolve = undefined;
 
 /** Sets up the function that is getting the token from authentication provider.
  * This function will be called every time when we need a fresh token, which
@@ -17,12 +19,20 @@ export const auth = {
         if (this.isLoggedIn) {
             return _token;
         } else {
+            await _lock;
+            if (this.isLoggedIn) return _token;
+
+            _lock = new Promise(resolve => _lockResolve = resolve);
+
             _token = await _getToken(); // Get token using authentication provider.
             this.isLoggedIn = true;
 
             setTimeout(() => {
                 this.isLoggedIn = false; // Reset authenticated state when token is about to expire.
             }, getMsTillAuthenticationIsRequired(_token));
+
+            _lockResolve();
+            _lockResolve = undefined;
 
             return _token;
         }
