@@ -60,6 +60,7 @@ window.submitText = async function submitText() {
     hideControls();
 }
 
+// Hides input field and sessions table, leaving only text to type.
 function hideControls() {
     inputAreaElement.classList.add('hidden');
     sessions.hide();
@@ -68,6 +69,7 @@ function hideControls() {
     document.addEventListener('keyup', replay.processKeyUp);
 }
 
+// Shows input field and sessions table.
 function showControls() {
     inputAreaElement.classList.remove('hidden');
     sessions.show();
@@ -76,6 +78,8 @@ function showControls() {
     document.removeEventListener('keyup', replay.processKeyUp);
 }
 
+// Gets next text. Currently reads input field, we'll generate texts on the
+// server side in future.
 function getNextText() {
     const text = inputElement.value;
     inputElement.value = '';
