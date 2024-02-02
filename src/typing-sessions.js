@@ -1,5 +1,4 @@
 import { config } from './config.js';
-import { auth } from './auth.js';
 import { notifier } from './notifier.js';
 import { http } from './http.js';
 
