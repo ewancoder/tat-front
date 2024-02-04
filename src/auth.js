@@ -2,8 +2,6 @@ import { createLock } from "./lock.js";
 
 let _getToken = undefined;
 let _token = undefined;
-let _lock = Promise.resolve();
-let _lockResolve = undefined;
 const lock = createLock();
 
 /** Sets up the function that is getting the token from authentication provider.
@@ -25,7 +23,6 @@ export const auth = {
             // Make sure this function actually gets the token only once,
             // even if called multiple times in a row.
             await lock.wait();
-            // TODO: Test that this locking works as intended.
 
             try {
                 if (this.isLoggedIn) return _token;
