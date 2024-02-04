@@ -26,18 +26,19 @@ export const auth = {
             if (this.isLoggedIn) return _token;
 
             _lock = new Promise(resolve => _lockResolve = resolve);
+            try {
+                _token = await _getToken(); // Get token using authentication provider.
+                this.isLoggedIn = true;
 
-            _token = await _getToken(); // Get token using authentication provider.
-            this.isLoggedIn = true;
+                setTimeout(() => {
+                    this.isLoggedIn = false; // Reset authenticated state when token is about to expire.
+                }, getMsTillAuthenticationIsRequired(_token));
 
-            setTimeout(() => {
-                this.isLoggedIn = false; // Reset authenticated state when token is about to expire.
-            }, getMsTillAuthenticationIsRequired(_token));
-
-            _lockResolve();
-            _lockResolve = undefined;
-
-            return _token;
+                return _token;
+            } finally {
+                _lockResolve();
+                _lockResolve = undefined;
+            }
         }
     },
     isLoggedIn: false
