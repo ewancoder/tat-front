@@ -1,7 +1,10 @@
+import { createLock } from "./lock.js";
+
 let _getToken = undefined;
 let _token = undefined;
 let _lock = Promise.resolve();
 let _lockResolve = undefined;
+const lock = createLock();
 
 /** Sets up the function that is getting the token from authentication provider.
  * This function will be called every time when we need a fresh token, which
@@ -21,12 +24,12 @@ export const auth = {
         } else {
             // Make sure this function actually gets the token only once,
             // even if called multiple times in a row.
-            await _lock;
+            await lock.wait();
+            // TODO: Test that this locking works as intended.
 
-            if (this.isLoggedIn) return _token;
-
-            _lock = new Promise(resolve => _lockResolve = resolve);
             try {
+                if (this.isLoggedIn) return _token;
+
                 _token = await _getToken(); // Get token using authentication provider.
                 this.isLoggedIn = true;
 
@@ -36,8 +39,7 @@ export const auth = {
 
                 return _token;
             } finally {
-                _lockResolve();
-                _lockResolve = undefined;
+                lock.release();
             }
         }
     },
