@@ -24,6 +24,8 @@ const typingState = initializeTypingState(textElement, async data => {
     replay.replayTypingSession(data.text, data.events);
 });
 
+const countdownElement = document.getElementById('countdown');
+
 const replayTypingState = initializeTypingState(replayElement);
 
 // Replay managers for processing controls (key presses).
@@ -32,7 +34,7 @@ replay = createReplay(replayTypingState);
 
 // Sessions manager for reviewing and deleting previous sessions.
 const sessionsElement = document.getElementById('sessions');
-sessions = await initializeSessions(replay, sessionsElement);
+sessions = await initializeSessions(replay, sessionsElement, raceGhost);
 
 // Input area for creating custom text to type.
 const inputAreaElement = document.getElementById('input-area');
@@ -61,6 +63,32 @@ window.submitText = async function submitText() {
     replay.stop();
 
     hideControls();
+}
+
+async function raceGhost(loadedSession) {
+    replay.stop();
+    inputAreaElement.classList.add('hidden');
+    replayElement.classList.remove('hidden');
+    textElement.classList.remove('hidden');
+    sessions.hide();
+
+    typingState.prepareText(loadedSession.text);
+
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    countdownElement.innerHTML = '3';
+
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    countdownElement.innerHTML = '2';
+
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    countdownElement.innerHTML = '1';
+
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    countdownElement.innerHTML = '';
+
+    document.addEventListener('keydown', typing.processKeyDown);
+    document.addEventListener('keyup', typing.processKeyUp);
+    replay.replayTypingSession(loadedSession.text, loadedSession.events);
 }
 
 // Hides input field and sessions table, leaving only text to type.

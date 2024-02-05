@@ -154,6 +154,12 @@ tr:nth-child(odd) .replay-col:hover {
     font-size: 1.1em;
 }
 
+#countdown {
+    font-size: 3rem;
+    margin: 0 auto;
+    width: 100px;
+}
+
 .clickable {
     cursor: pointer;
 }

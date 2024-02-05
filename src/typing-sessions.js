@@ -2,7 +2,8 @@ import { config } from './config.js';
 import { notifier } from './notifier.js';
 import { http } from './http.js';
 
-export async function initializeSessions(replay, domElement) {
+// TODO: Consider incorporating raceGhostFunc.
+export async function initializeSessions(replay, domElement, raceGhostFunc) {
     let infos = await queryTypingSessions();
     let sessionsCache = {};
 
@@ -85,6 +86,16 @@ export async function initializeSessions(replay, domElement) {
         replayCol.innerHTML = '▶';
         replayCol.classList.add('clickable');
 
+        const raceCol = document.createElement('td');
+        raceCol.innerHTML = '🚗';
+        raceCol.classList.add('clickable');
+
+        raceCol.onclick = async function() {
+            const loadedSession = await queryTypingSession(info.id);
+
+            await raceGhostFunc(loadedSession);
+        };
+
         const onClick = async function() {
             const loadedSession = await queryTypingSession(info.id);
 
@@ -137,6 +148,7 @@ export async function initializeSessions(replay, domElement) {
         row.appendChild(lengthCol);
         row.appendChild(speedCol);
         row.appendChild(replayCol);
+        row.appendChild(raceCol);
         row.appendChild(deleteCol);
         row.appendChild(rollbackCol);
         row.appendChild(confirmDeleteCol);
