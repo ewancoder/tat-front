@@ -54,15 +54,32 @@ export async function initializeSessions(replay, domElement) {
         }
     }
 
+    function getTypingSpeed(text, lengthSeconds) {
+        return ((text.length / lengthSeconds) * 60 / 5).toFixed(2);
+    }
+
+    function formatDate(date) {
+        return new Date(date).toLocaleString();
+    }
+
     function appendInfoToDom(info, insertAsFirst) {
         const row = document.createElement('tr');
 
+        const dateCol = document.createElement('td');
+        dateCol.innerHTML = `${formatDate(info.startedTypingAt)}`;
+        dateCol.classList.add('date-col');
+
         const textCol = document.createElement('td');
         textCol.innerHTML = info.text;
+        textCol.classList.add('text-col');
 
         const lengthCol = document.createElement('td');
         lengthCol.innerHTML = `${info.lengthSeconds} seconds`;
         lengthCol.classList.add('length-col');
+
+        const speedCol = document.createElement('td');
+        speedCol.innerHTML = `${getTypingSpeed(info.text, info.lengthSeconds)} wpm`;
+        speedCol.classList.add('speed-col');
 
         const replayCol = document.createElement('td');
         replayCol.innerHTML = '▶';
@@ -115,8 +132,10 @@ export async function initializeSessions(replay, domElement) {
             confirmDeleteCol.classList.add('hidden');
         }
 
+        row.appendChild(dateCol);
         row.appendChild(textCol);
         row.appendChild(lengthCol);
+        row.appendChild(speedCol);
         row.appendChild(replayCol);
         row.appendChild(deleteCol);
         row.appendChild(rollbackCol);

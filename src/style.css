@@ -106,9 +106,8 @@ iframe {
 }
 
 #sessions {
-    font-size: 1.2em;
     margin: 0 auto;
-    width: 1200px;
+    width: 1500px;
     overflow: scroll;
 }
 
@@ -134,7 +133,18 @@ tr:nth-child(odd) .replay-col:hover {
 
 .length-col {
     width: 100px;
-    font-size: 0.8em;
+}
+
+.speed-col {
+    width: 100px;
+}
+
+.date-col {
+    width: 200px;
+}
+
+.text-col {
+    font-size: 1.1em;
 }
 
 .clickable {
