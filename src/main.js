@@ -9,23 +9,26 @@ import './google-auth.js'; // Sets up google auth.
 await auth.getToken();
 document.body.classList.remove('non-scrollable');
 
+let typing = undefined;
 let replay = undefined;
 let sessions = undefined;
 
 // Typing manager that manager how the text is being typed.
 const textElement = document.getElementById('text');
+const replayElement = document.getElementById('replay');
 const typingState = initializeTypingState(textElement, async data => {
-    if (!replay.isReplaying()) {
-        sessions.uploadResults(data); // Intentionally not awaited for faster UI experience.
+    sessions.uploadResults(data); // Intentionally not awaited for faster UI experience.
 
-        showControls();
+    showControls();
 
-        replay.replayTypingSession(data.text, data.events);
-    }
+    replay.replayTypingSession(data.text, data.events);
 });
 
-// Replay manager for processing controls (key presses).
-replay = createReplay(typingState);
+const replayTypingState = initializeTypingState(replayElement);
+
+// Replay managers for processing controls (key presses).
+typing = createReplay(typingState);
+replay = createReplay(replayTypingState);
 
 // Sessions manager for reviewing and deleting previous sessions.
 const sessionsElement = document.getElementById('sessions');
@@ -63,19 +66,23 @@ window.submitText = async function submitText() {
 // Hides input field and sessions table, leaving only text to type.
 function hideControls() {
     inputAreaElement.classList.add('hidden');
+    replayElement.classList.add('hidden');
+    textElement.classList.remove('hidden');
     sessions.hide();
 
-    document.addEventListener('keydown', replay.processKeyDown);
-    document.addEventListener('keyup', replay.processKeyUp);
+    document.addEventListener('keydown', typing.processKeyDown);
+    document.addEventListener('keyup', typing.processKeyUp);
 }
 
 // Shows input field and sessions table.
 function showControls() {
     inputAreaElement.classList.remove('hidden');
+    replayElement.classList.remove('hidden');
+    textElement.classList.add('hidden');
     sessions.show();
 
-    document.removeEventListener('keydown', replay.processKeyDown);
-    document.removeEventListener('keyup', replay.processKeyUp);
+    document.removeEventListener('keydown', typing.processKeyDown);
+    document.removeEventListener('keyup', typing.processKeyUp);
 }
 
 // Gets next text. Currently reads input field, we'll generate texts on the

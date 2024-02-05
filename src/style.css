@@ -16,6 +16,13 @@ body {
     margin: 20px auto;
 }
 
+#replay {
+    max-height: 50%;
+    font-size: 2.2rem;
+    width: 1000px;
+    margin: 20px auto;
+}
+
 #authentication {
     margin: 50px auto;
 }

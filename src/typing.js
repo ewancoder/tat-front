@@ -172,14 +172,16 @@ export function initializeTypingState(textElement, finishTypingCallback) {
             this.allowInput = false;
             this.finishedTypingAt = Date.now();
 
-            finishTypingCallback({
-                text: this.sourceText,
-                startedTypingAt: new Date(this.startedTypingAt).toISOString(),
-                finishedTypingAt: new Date(this.finishedTypingAt).toISOString(),
-                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                timezoneOffset: -new Date(this.startedTypingAt).getTimezoneOffset(),
-                events: this.events
-            });
+            if (finishTypingCallback) {
+                finishTypingCallback({
+                    text: this.sourceText,
+                    startedTypingAt: new Date(this.startedTypingAt).toISOString(),
+                    finishedTypingAt: new Date(this.finishedTypingAt).toISOString(),
+                    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                    timezoneOffset: -new Date(this.startedTypingAt).getTimezoneOffset(),
+                    events: this.events
+                });
+            }
 
             //this.reset();
         },
