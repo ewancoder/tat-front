@@ -11,15 +11,25 @@ export function createReplay(typingState) {
     }
 
     async function showReplay(cr, replayEvents) {
-        for (const replayEvent of replayEvents) {
-            await new Promise(resolve => setTimeout(resolve, replayEvent.wait));
+        const startPerf = performance.now();
+        let idx = 0;
+        while (idx < replayEvents.length) {
             if (!isReplayingObj[cr]) return;
+            const nowPerf = performance.now();
+            const replayEvent = replayEvents[idx];
 
-            if (replayEvent.keyAction === 'Press') {
-                processKeyDown({ key: replayEvent.key });
-            } else {
-                processKeyUp({ key: replayEvent.key });
+            if (nowPerf - startPerf > replayEvent.wait) {
+                if (replayEvent.keyAction === 'Press') {
+                    processKeyDown({ key: replayEvent.key });
+                } else {
+                    processKeyUp({ key: replayEvent.key });
+                }
+
+                idx++;
+                continue;
             }
+
+            await new Promise(resolve => requestAnimationFrame(resolve));
         }
     }
 
@@ -59,14 +69,12 @@ export function createReplay(typingState) {
             typingState.prepareText(text);
 
             const firstPerf = events[0].perf;
-            let prevPerf = 0;
             const replayEvents = events.map(event => {
                 const result = {
                     key: getReplayKey(event.key),
-                    wait: event.perf - firstPerf - prevPerf,
+                    wait: event.perf - firstPerf,
                     keyAction: event.keyAction
                 };
-                prevPerf = event.perf - firstPerf;
 
                 return result;
             });
