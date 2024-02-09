@@ -8,6 +8,8 @@ typingrealm.com {
 
 api.typingrealm.com {
     handle_path /typing/* {
-        reverse_proxy typingrealm-typing:8080
+        reverse_proxy typingrealm-typing-1:8080 typingrealm-typing-2:8080 {
+            lb_policy round_robin
+        }
     }
 }
